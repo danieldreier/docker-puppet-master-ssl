@@ -1,0 +1,15 @@
+[Unit]
+Description=SSL data persistence for simple dockerized Puppetmaster
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+#ExecStartPre=/usr/bin/docker kill %n
+#ExecStartPre=/usr/bin/docker rm %n
+ExecStartPre=/usr/bin/docker pull danieldreier/docker-puppet-master-ssl
+ExecStart=/usr/bin/docker run --rm -e "AWS_ACCESS_KEY_ID=XXXXXXXX" -e "AWS_SECRET_ACCESS_KEY=XXXXXXXX" -e "S3BUCKET=bucketname" --name=puppetmaster-ssl-data danieldreier/docker-puppet-master-ssl /root/sync.sh
+ExecStop=/usr/bin/docker stop -t 60 %n
+
+[X-Fleet]
+X-Conflicts=puppetmaster-ssl.*.service
